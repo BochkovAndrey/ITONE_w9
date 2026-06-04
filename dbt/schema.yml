@@ -1,0 +1,48 @@
+version: 2
+
+models:
+  - name: stg_orders
+    description: "Очищенные данные заказов"
+    columns:
+      - name: order_id
+        tests:
+          - unique
+          - not_null
+      - name: customer_id
+        tests:
+          - not_null
+      - name: order_date
+        tests:
+          - not_null
+      - name: status
+        tests:
+          - accepted_values:
+              values: ['new', 'paid', 'shipped', 'cancelled']
+              
+  - name: int_order_metrics
+    description: "Метрики на уровне заказа"
+    columns:
+      - name: order_id
+        tests:
+          - unique
+          - not_null
+      - name: order_amount
+        tests:
+          - not_null
+          - dbt_utils.expression_is_true:
+              expression: ">= 0"
+              
+  - name: mrt_daily_sales
+    description: "Витрина ежедневных продаж"
+    columns:
+      - name: sale_date
+        tests:
+          - unique
+          - not_null
+      - name: total_revenue
+        tests:
+          - not_null
+      - name: cancellation_rate
+        tests:
+          - dbt_utils.expression_is_true:
+              expression: "between 0 and 100"
